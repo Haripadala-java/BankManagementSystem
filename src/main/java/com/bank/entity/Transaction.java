@@ -1,100 +1,68 @@
 package com.bank.entity;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
 
 @Entity
+@Table(name = "transactions")
 public class Transaction {
-	
-	@Id
-	private int transactionId;
-	private int customerId;
-	private String transactionType;
-	private double amount;
-	private String recipientAccount;
-	private String transactionDate;
-	private String status;
-	
-	public Transaction() {
-		super();
-	}
 
-	public Transaction(int transactionId, int customerId, String transactionType, double amount,
-			String recipientAccount, String transactionDate, String status) {
-		super();
-		this.transactionId = transactionId;
-		this.customerId = customerId;
-		this.transactionType = transactionType;
-		this.amount = amount;
-		this.recipientAccount = recipientAccount;
-		this.transactionDate = transactionDate;
-		this.status = status;
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public int getTransactionId() {
-		return transactionId;
-	}
+    @Column(nullable = false)
+    private String fromAccount;
 
-	public void setTransactionId(int transactionId) {
-		this.transactionId = transactionId;
-	}
+    @Column(nullable = false)
+    private String toAccount;
 
-	public int getCustomerId() {
-		return customerId;
-	}
+    @Column(nullable = false)
+    private double amount;
 
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
-	}
+    @Column(nullable = false)
+    private String type; // DEBIT / CREDIT
 
-	public String getTransactionType() {
-		return transactionType;
-	}
+    @Column(nullable = false)
+    private LocalDateTime transactionDate;
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
-	}
+    // ---- getters & setters ----
 
-	public double getAmount() {
-		return amount;
-	}
+    public Long getId() { return id; }
 
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
+    public String getFromAccount() { return fromAccount; }
+    public void setFromAccount(String fromAccount) {
+        this.fromAccount = fromAccount;
+    }
 
-	public String getRecipientAccount() {
-		return recipientAccount;
-	}
+    public String getToAccount() { return toAccount; }
+    public void setToAccount(String toAccount) {
+        this.toAccount = toAccount;
+    }
 
-	public void setRecipientAccount(String recipientAccount) {
-		this.recipientAccount = recipientAccount;
-	}
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 
-	public String getTransactionDate() {
-		return transactionDate;
-	}
+    public String getType() { return type; }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setTransactionDate(String transactionDate) {
-		this.transactionDate = transactionDate;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	@Override
-	public String toString() {
-		return "Transaction [transactionId=" + transactionId + ", customerId=" + customerId + ", transactionType="
-				+ transactionType + ", amount=" + amount + ", recipientAccount=" + recipientAccount
-				+ ", transactionDate=" + transactionDate + ", status=" + status + "]";
-	}
-	
-	
+    public LocalDateTime getTransactionDate() {
+        return transactionDate;
+    }
+    public void setTransactionDate(LocalDateTime transactionDate) {
+        this.transactionDate = transactionDate;
+    }
 	
 
 }

@@ -1,55 +1,35 @@
 package com.bank.entity;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "otp_details")
 public class Otp {
-	
-	@Id
-	private int otpId;
-	private String email;
-	private String otp;
-	
-	public Otp() {
-		super();
-	}
 
-	public Otp(int otpId, String email, String otp) {
-		super();
-		this.otpId = otpId;
-		this.email = email;
-		this.otp = otp;
-	}
+    @Id
+    @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
+    private Long id;
 
-	public int getOtpId() {
-		return otpId;
-	}
+    private String accountNumber;
+    private String otp;
+    private LocalDateTime expiryTime;
 
-	public void setOtpId(int otpId) {
-		this.otpId = otpId;
-	}
+    // getters & setters
+    public Long getId() { return id; }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getAccountNumber() { return accountNumber; }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getOtp() { return otp; }
+    public void setOtp(String otp) { this.otp = otp; }
 
-	public String getOtp() {
-		return otp;
-	}
-
-	public void setOtp(String otp) {
-		this.otp = otp;
-	}
-
-	@Override
-	public String toString() {
-		return "Otp [otpId=" + otpId + ", email=" + email + ", otp=" + otp + "]";
-	}
+    public LocalDateTime getExpiryTime() { return expiryTime; }
+    public void setExpiryTime(LocalDateTime expiryTime) { this.expiryTime = expiryTime; }
 	
 	
 	

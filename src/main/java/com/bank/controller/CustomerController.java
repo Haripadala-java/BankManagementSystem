@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bank.service.CustomerLoginService;
+import com.bank.service.OtpService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 public class CustomerController {
 	
 	public CustomerLoginService customerLoginService;
+	public OtpService otpService;
 
     @GetMapping("/customer/login")
     public String customerLoginPage() {
@@ -21,15 +23,27 @@ public class CustomerController {
     }
     
     @PostMapping("/customer/login")
-    public String customerLogin(@RequestParam String username, @RequestParam String password , HttpSession session, Model model ) {
-    	String result = customerLoginService.validateLogin(username, password);
-    	if("temp".equals(result)) {
-    		session.setAttribute("us", username);
-    		return "redirect:/customer/reset-password";
-    	}
-    	if("success".equals(result)) {
-    		
-    		return "redirect:/customer/otp";
-    	}
+    public String customerLogin(
+            @RequestParam("accountNumber") String accountNumber,
+            @RequestParam("password") String password,
+            HttpSession session,
+            Model model) {
+
+        String result =
+                customerLoginService.validateLogin(accountNumber, password);
+
+        if ("RESET_REQUIRED".equals(result)) {
+            session.setAttribute("RESET_ACC", accountNumber);
+            return "redirect:/customer/reset-password";
+        }
+
+        if ("SUCCESS".equals(result)) {
+            session.setAttribute("OTP_ACC", accountNumber);
+            otpService.generateOtp(accountNumber);
+            return "redirect:/customer/otp";
+        }
+
+        model.addAttribute("error", result);
+        return "customer-login";
     }
 }

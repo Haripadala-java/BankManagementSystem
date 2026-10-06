@@ -17,6 +17,8 @@ public class CustomerController {
 	public CustomerLoginService customerLoginService;
 	public OtpService otpService;
 
+//	1) get customer login details 
+	
     @GetMapping("/customer/login")
     public String customerLoginPage() {
         return "customer-login";
@@ -46,4 +48,28 @@ public class CustomerController {
         model.addAttribute("error", result);
         return "customer-login";
     }
+    
+//    2) reset the password
+    
+    @GetMapping("customer/reset-password")
+    public String resetPage() {
+    	return "reset-password";
+    }
+    
+    @PostMapping("customer/reset-password")
+    public String resetPassword(@RequestParam("newPassword") String password, HttpSession session, Model model) {
+    	
+    	String accountNumber = (String) session.getAttribute("RESET_ACC");
+    	
+    	String result = customerLoginService.resetPassword(accountNumber, password);
+    	
+    	if("SUCCESS".equals(result)) {
+    		session.removeAttribute("RESET_ACC");
+    		return "redirect:/customer/login";
+    	}
+    	model.addAttribute("error", result);
+        return "reset-password";
+    	
+    }
+    
 }

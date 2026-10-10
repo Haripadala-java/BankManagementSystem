@@ -3,6 +3,7 @@ package com.bank.service;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bank.entity.Customer;
 import com.bank.entity.Otp;
@@ -16,6 +17,7 @@ public class OtpService {
 	public CustomerRepository cRepository;
 	public EmailService emailService;
 
+	@Transactional
 	public void generateOtp(String accountNumber) {
 		if(accountNumber==null || accountNumber.isBlank()) {
 			return;
@@ -39,4 +41,22 @@ public class OtpService {
 		emailService.sendMail(customer.getEmail(), subject, body);
 		
 	}	
+	
+	public boolean verifyOtp(String accounnumber,String otp) {
+		if(accounnumber==null || otp==null) 
+			return false;
+		
+		Otp ot= repository.findValidOtp(accounnumber, otp);
+		
+		if(ot==null)
+			return false;
+		
+		if(ot.getExpiryTime().isBefore(LocalDateTime.now())) {
+			repository.delete(ot);
+			return false;
+		}
+		
+		repository.delete(ot);
+		return true;
+	}
 }

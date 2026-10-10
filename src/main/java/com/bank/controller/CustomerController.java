@@ -72,4 +72,37 @@ public class CustomerController {
     	
     }
     
+//    3) customer otp verify
+    
+    @GetMapping("/customer/otp")
+    public String otpPage() {
+    	return "customer-otp";
+    }
+    
+    @PostMapping("/customer/otp")
+    public String verifyOtp(@RequestParam("otp") String otp, HttpSession session, Model model) {
+    	
+    	  String accountNumber =
+                  (String) session.getAttribute("OTP_ACC");
+
+          if (accountNumber == null) {
+              return "redirect:/customer/login";
+          }
+          
+          boolean valid =
+                  otpService.verifyOtp(accountNumber, otp);
+
+          if (!valid) {
+              model.addAttribute("error", "Invalid or expired OTP");
+              return "customer-otp";
+          }
+          
+          session.removeAttribute("OTP_ACC");
+          session.setAttribute("CUSTOMER_LOGGED_IN", true);
+          session.setAttribute("LOGGED_IN_ACC", accountNumber);
+          return "redirect:/customer/dashboard";
+    }
+    
+    
+    
 }

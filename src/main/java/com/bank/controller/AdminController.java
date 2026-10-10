@@ -29,6 +29,9 @@ public class AdminController {
 		this.loanService = loanService;
 	}
 
+//  we have given pre-defined login details for admin login	
+	
+	
 	private static final String ADMIN_USERNAME = "admim";
 	private static final String ADMIN_PASSWORD = "admin123";
 	
@@ -81,7 +84,7 @@ public class AdminController {
 		return "admin-create-customer";
 	}
 	
-	@GetMapping("/admin/create-customer")
+	@PostMapping("/admin/create-customer")
 	public String createCustomer(@RequestParam("fullName") String fullName,
             @RequestParam("email") String email,
             @RequestParam("mobile") String mobile,

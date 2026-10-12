@@ -6,7 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.bank.entity.Customer;
+import com.bank.service.CustomerDashboard;
 import com.bank.service.CustomerLoginService;
+import com.bank.service.FundTransferService;
+import com.bank.service.LoanService;
 import com.bank.service.OtpService;
 
 import jakarta.servlet.http.HttpSession;
@@ -16,7 +20,13 @@ public class CustomerController {
 	
 	public CustomerLoginService customerLoginService;
 	public OtpService otpService;
+	
+	public CustomerDashboard cusDashboard;
 
+	public FundTransferService traservice;
+	
+	public LoanService loanService;
+	
 //	1) get customer login details 
 	
     @GetMapping("/customer/login")
@@ -102,6 +112,102 @@ public class CustomerController {
           session.setAttribute("LOGGED_IN_ACC", accountNumber);
           return "redirect:/customer/dashboard";
     }
+    
+    @GetMapping("/customer/dashboard")
+    public String customerDashboard(HttpSession session, Model model) {
+    	
+    	Boolean logIn = (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+    	
+    	if(logIn==null || !logIn) {
+    		return "redirect:/customer/login";
+    	}
+    	
+    	String accounumber = (String) session.getAttribute("LOGGED_IN_ACC");
+    	
+    	if(accounumber==null || accounumber.isBlank()) {
+    		return "redirect:/customer/login";
+    	}
+    	
+    	Customer customer = cusDashboard.getCustomerByAccount(accounumber);
+    	
+    	
+        if (customer == null) {
+            return "redirect:/customer/login";
+        }
+        
+        model.addAttribute("customer", customer);
+        return "customer-dashboard";
+    	
+    }
+    
+    @GetMapping("/customer/transfer")
+    public String transferPage(HttpSession session) {
+
+        Boolean loggedIn =
+                (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+
+        if (loggedIn == null || !loggedIn) {
+             return "redirect:/customer/login";
+        }
+
+        return "fund-transfer";
+    }
+    
+    @PostMapping("/customer/transfer")
+    public String fundTransfer(
+            @RequestParam("toAccount") String toAccount,
+            @RequestParam("amount") double amount,
+            HttpSession session,
+            Model model) {
+
+        Boolean loggedIn =
+                (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+
+        if (loggedIn == null || !loggedIn) {
+            return "redirect:/customer/login";
+        }
+
+        String fromAccount =
+                (String) session.getAttribute("LOGGED_IN_ACC");
+
+        String result =
+                traservice.transfer(fromAccount, toAccount, amount);
+
+        model.addAttribute("message", result);
+
+        return "fund-transfer"; // ✅ STAY HERE
+    }
+    
+    @GetMapping("/customer/loan/apply")
+    public String applyLoanPage(HttpSession session) {
+
+        Boolean loggedIn =
+                (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+
+        if (loggedIn == null || !loggedIn) {
+            return "redirect:/customer/login";
+        }
+
+        return "customer-loan-apply";
+    }
+    
+    @PostMapping("/customer/loan/apply")
+    public String applyLoan( @RequestParam String loanType,
+            @RequestParam double amount,
+            @RequestParam int tenure,
+            HttpSession session,
+            Model model) {
+    	
+    	String accuntnum= (String) session.getAttribute("LOGGED_IN_ACC");
+    	
+    	String result =loanService.applyloan(accuntnum, loanType, amount, tenure);
+    	
+    	model.addAttribute("message", result);
+    	  return "customer-loan-apply";
+    	
+    }
+    
+    
     
     
     

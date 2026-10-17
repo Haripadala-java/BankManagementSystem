@@ -1,5 +1,8 @@
 package com.bank.controller;
 
+import java.io.PrintWriter;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bank.entity.Customer;
+import com.bank.entity.Transaction;
 import com.bank.service.CustomerDashboard;
 import com.bank.service.CustomerLoginService;
 import com.bank.service.FundTransferService;
 import com.bank.service.LoanService;
 import com.bank.service.OtpService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -27,9 +32,19 @@ public class CustomerController {
 	
 	public LoanService loanService;
 	
-//	1) get customer login details 
+    public CustomerController(CustomerLoginService customerLoginService, OtpService otpService,
+			CustomerDashboard cusDashboard, FundTransferService traservice, LoanService loanService) {
+		super();
+		this.customerLoginService = customerLoginService;
+		this.otpService = otpService;
+		this.cusDashboard = cusDashboard;
+		this.traservice = traservice;
+		this.loanService = loanService;
+	}
 	
-    @GetMapping("/customer/login")
+//	1) get customer login details 
+
+	@GetMapping("/customer/login")
     public String customerLoginPage() {
         return "customer-login";
     }
@@ -207,6 +222,135 @@ public class CustomerController {
     	
     }
     
+    @GetMapping("/customer/logout")
+    public String logout(HttpSession session) {
+    	if(session!=null) {
+    	session.invalidate();
+    	}
+    	return "redirect:/customer/login";
+    }
+    
+    @GetMapping("/customer/statement")
+    public String miniStatement(HttpSession session , Model model) {
+    	Boolean loggedIn = (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+    	if(loggedIn==null || !loggedIn) {
+    		return "redirect:/customer/login";
+    	}
+    	  String accNo =
+                  (String) session.getAttribute("LOGGED_IN_ACC");
+    	 List<Transaction> transactions= cusDashboard.ministatement(accNo);
+    	  
+    	 for(Transaction tx : transactions) {
+    		 if(accNo.equals(tx.getFromAccount())) {
+    			 tx.setType("DEBIT");
+    		 }
+    		 else {
+    			 tx.setType("CREDIT");
+    		 }
+    	 }
+    	  
+    	  model.addAttribute("transacctions", transactions);
+    	  return "customer-statement";
+    }
+    
+    @GetMapping("/customer/statement/filter")
+    public String filterStatement(
+            @RequestParam(required = false) Integer month,
+            @RequestParam Integer year,
+            HttpSession session,
+            Model model) {
+
+        Boolean loggedIn =
+                (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+
+        if (loggedIn == null || !loggedIn)
+            return "redirect:/customer/login";
+
+        String accNo =
+                (String) session.getAttribute("LOGGED_IN_ACC");
+
+        List<Transaction> list =
+                cusDashboard.getFilteredStatement(accNo, month, year);
+
+        model.addAttribute("transactions", list);
+        model.addAttribute("month", month);
+        model.addAttribute("year", year);
+
+        return "customer-statement";
+    }
+    
+    @GetMapping("/customer/statement/download")
+    public String downloadStatement(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            HttpSession session,
+            HttpServletResponse response,
+            Model model) throws Exception {
+
+        // 🔐 LOGIN CHECK
+        Boolean loggedIn =
+                (Boolean) session.getAttribute("CUSTOMER_LOGGED_IN");
+
+        if (loggedIn == null || !loggedIn) {
+            return "redirect:/customer/login";
+        }
+
+        String accNo =
+                (String) session.getAttribute("LOGGED_IN_ACC");
+
+        if (accNo == null) {
+            return "redirect:/customer/login";
+        }
+
+        // 📄 FETCH DATA (ALL / MONTHLY / YEARLY)
+        List<Transaction> list;
+
+        if (year != null) {
+            // monthly OR yearly
+            list = cusDashboard.getFilteredStatement(accNo, month, year);
+        } else {
+            // fallback → mini statement
+            list = cusDashboard.ministatement(accNo);
+        }
+
+        if (list == null || list.isEmpty()) {
+            model.addAttribute("transactions", list);
+            model.addAttribute("error", "No transactions to download");
+            return "customer-statement";
+        }
+
+        // 📥 CSV DOWNLOAD
+        response.setContentType("text/csv");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment; filename=transaction_statement.csv"
+        );
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Date,Type,From,To,Amount");
+
+        for (Transaction tx : list) {
+
+            // ✅ DEBIT / CREDIT LOGIC (IMPORTANT)
+            String displayType;
+            if (accNo.equals(tx.getFromAccount())) {
+                displayType = "DEBIT";
+            } else {
+                displayType = "CREDIT";
+            }
+
+            writer.println(
+                    tx.getTransactionDate() + "," +
+                    displayType + "," +
+                    tx.getFromAccount() + "," +
+                    tx.getToAccount() + "," +
+                    tx.getAmount()
+            );
+        }
+
+        writer.flush();
+        return null; // ✅ REQUIRED FOR FILE DOWNLOAD
+    }
     
     
     

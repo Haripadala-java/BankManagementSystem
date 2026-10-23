@@ -2,6 +2,8 @@ package com.bank.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bank.entity.Customer;
 import com.bank.entity.Transaction;
 import com.bank.repository.CustomerRepository;
@@ -9,10 +11,20 @@ import com.bank.repository.TransactionRepository;
 
 public class FundTransferService {
 	
-	public CustomerRepository repository;
+	private final CustomerRepository repository;
 	
-	public TransactionRepository trarepRepository;
+	private final TransactionRepository trarepRepository;
 	
+	
+	
+	public FundTransferService(CustomerRepository repository, TransactionRepository trarepRepository) {
+		super();
+		this.repository = repository;
+		this.trarepRepository = trarepRepository;
+	}
+
+
+@Transactional
 	public String transfer(String fromacc, String toacc, double amnt) {
 		
         // Validation checks

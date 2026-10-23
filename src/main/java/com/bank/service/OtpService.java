@@ -13,9 +13,20 @@ import com.bank.repository.OtpRepository;
 @Service
 public class OtpService {
 	
-	public OtpRepository repository;
-	public CustomerRepository cRepository;
-	public EmailService emailService;
+	private final OtpRepository repository;
+	private final CustomerRepository cRepository;
+	private final EmailService emailService;
+
+	
+	
+
+	public OtpService(OtpRepository repository, CustomerRepository cRepository, EmailService emailService) {
+		super();
+		this.repository = repository;
+		this.cRepository = cRepository;
+		this.emailService = emailService;
+		
+	}
 
 	@Transactional
 	public void generateOtp(String accountNumber) {

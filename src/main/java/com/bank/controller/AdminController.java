@@ -32,7 +32,7 @@ public class AdminController {
 //  we have given pre-defined login details for admin login	
 	
 	
-	private static final String ADMIN_USERNAME = "admim";
+	private static final String ADMIN_USERNAME = "admin";
 	private static final String ADMIN_PASSWORD = "admin123";
 	
 	@GetMapping("/admin/login")

@@ -9,9 +9,9 @@ import com.bank.util.AccountUtil;
 @Service
 public class CustomerService {
 	
-	public final CustomerRepository repository;
+	private final CustomerRepository repository;
 	
-	public final EmailService emailService;
+	private final EmailService emailService;
 	
 	
 	

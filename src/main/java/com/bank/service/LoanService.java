@@ -2,6 +2,7 @@ package com.bank.service;
 
 import com.bank.repository.LoanRepository;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public class LoanService {
 	
 	private final LoanRepository loanRepository;
 
-	LoanService(LoanRepository loanRepository) {
+	public LoanService(LoanRepository loanRepository) {
 		this.loanRepository = loanRepository;
 	}
 
@@ -68,6 +69,10 @@ public class LoanService {
 		
 		return "Loan applied successfully your application under Review";
 	}
+	
+	public List<Loan> getLoans(String accNo) {
+        return loanRepository.findByAccountNumber(accNo);
+    }
 	
     private double getInterestRate(String loanType) {
         return switch (loanType) {

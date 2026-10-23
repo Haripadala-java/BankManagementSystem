@@ -18,6 +18,14 @@ public class CustomerDashboard {
 	
 	public TransactionRepository trasrepository;
 	
+	
+	
+	public CustomerDashboard(CustomerRepository cusreposRepository, TransactionRepository trasrepository) {
+		super();
+		this.cusreposRepository = cusreposRepository;
+		this.trasrepository = trasrepository;
+	}
+
 	public Customer getCustomerByAccount(String accountNumber) {
 		
 		return cusreposRepository.findByAcountnmber(accountNumber);

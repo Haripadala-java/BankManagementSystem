@@ -15,7 +15,16 @@ import com.bank.repository.CustomerRepository;
 @Service
 public class CustomerLoginService {
 	
-	public CustomerRepository customerRepository;
+	private final CustomerRepository customerRepository;
+	
+	
+
+	
+
+	 public CustomerLoginService(CustomerRepository customerRepository) {
+		super();
+		this.customerRepository = customerRepository;
+	}
 
 	 @Transactional(readOnly = true)
     public String validateLogin(String accountNumber, String password) {

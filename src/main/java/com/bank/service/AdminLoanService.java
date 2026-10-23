@@ -3,6 +3,7 @@ package com.bank.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bank.entity.Customer;
 import com.bank.entity.Loan;
@@ -15,10 +16,17 @@ public class AdminLoanService {
 	public LoanRepository repository;
 	public CustomerRepository cusreRepository;
 	
+	public AdminLoanService(LoanRepository repository, CustomerRepository cusreRepository) {
+		super();
+		this.repository = repository;
+		this.cusreRepository = cusreRepository;
+	}
+
 	public List<Loan> getPendingLoans(){
 		return repository.findByStatus("PENDING");
 	}
 	
+	@Transactional
 	public String approveLoan(Long loanId) {
 		
 		if(loanId == null)
@@ -52,6 +60,7 @@ public class AdminLoanService {
 		return" loan amount approved succesfully";
 	}
 	
+	@Transactional
 	public String rejectLoan(Long loanId) {
 		if(loanId==null)
 			return "invalid loanId";
